@@ -1,0 +1,393 @@
+version: '3.8'
+
+services:
+  # Kafka KRaft Cluster (3 nodes)
+  kafka-1:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka-1
+    container_name: kafka-1
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_ENABLE_KRAFT: yes
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-1:29092,CONTROLLER://kafka-1:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    volumes:
+      - kafka-1-data:/tmp/kraft-combined-logs
+    networks:
+      - kafka-network
+
+  kafka-2:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka-2
+    container_name: kafka-2
+    ports:
+      - "9093:9093"
+      - "9102:9102"
+    environment:
+      KAFKA_ENABLE_KRAFT: yes
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-2:29092,PLAINTEXT_HOST://localhost:9093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-2:29092,CONTROLLER://kafka-2:29093,PLAINTEXT_HOST://0.0.0.0:9093'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_JMX_PORT: 9102
+      KAFKA_JMX_HOSTNAME: localhost
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    volumes:
+      - kafka-2-data:/tmp/kraft-combined-logs
+    networks:
+      - kafka-network
+
+  kafka-3:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka-3
+    container_name: kafka-3
+    ports:
+      - "9094:9094"
+      - "9103:9103"
+    environment:
+      KAFKA_ENABLE_KRAFT: yes
+      KAFKA_NODE_ID: 3
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-3:29092,PLAINTEXT_HOST://localhost:9094'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-3:29092,CONTROLLER://kafka-3:29093,PLAINTEXT_HOST://0.0.0.0:9094'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_JMX_PORT: 9103
+      KAFKA_JMX_HOSTNAME: localhost
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    volumes:
+      - kafka-3-data:/tmp/kraft-combined-logs
+    networks:
+      - kafka-network
+
+  # ClickHouse Keepers (3 nodes)
+  clickhouse-keeper-1:
+    image: clickhouse/clickhouse-keeper:23.8-alpine
+    container_name: clickhouse-keeper-1
+    hostname: clickhouse-keeper-1
+    ports:
+      - "9181:9181"
+    volumes:
+      - keeper-1-data:/var/lib/clickhouse-keeper
+      - ./configs/clickhouse/keeper-1.xml:/etc/clickhouse-keeper/keeper_config.xml
+    networks:
+      - clickhouse-network
+
+  clickhouse-keeper-2:
+    image: clickhouse/clickhouse-keeper:23.8-alpine
+    container_name: clickhouse-keeper-2
+    hostname: clickhouse-keeper-2
+    ports:
+      - "9182:9181"
+    volumes:
+      - keeper-2-data:/var/lib/clickhouse-keeper
+      - ./configs/clickhouse/keeper-2.xml:/etc/clickhouse-keeper/keeper_config.xml
+    networks:
+      - clickhouse-network
+
+  clickhouse-keeper-3:
+    image: clickhouse/clickhouse-keeper:23.8-alpine
+    container_name: clickhouse-keeper-3
+    hostname: clickhouse-keeper-3
+    ports:
+      - "9183:9181"
+    volumes:
+      - keeper-3-data:/var/lib/clickhouse-keeper
+      - ./configs/clickhouse/keeper-3.xml:/etc/clickhouse-keeper/keeper_config.xml
+    networks:
+      - clickhouse-network
+
+  # ClickHouse Servers (3 shards, 2 replicas)
+  clickhouse-s1r1:
+    image: clickhouse/clickhouse-server:23.8-alpine
+    container_name: clickhouse-s1r1
+    hostname: clickhouse-s1r1
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse-s1r1-data:/var/lib/clickhouse
+      - ./configs/clickhouse/s1r1-config.xml:/etc/clickhouse-server/config.xml
+      - ./configs/clickhouse/s1r1-users.xml:/etc/clickhouse-server/users.xml
+      - ./configs/clickhouse/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    depends_on:
+      - clickhouse-keeper-1
+      - clickhouse-keeper-2
+      - clickhouse-keeper-3
+    networks:
+      - clickhouse-network
+
+  clickhouse-s1r2:
+    image: clickhouse/clickhouse-server:23.8-alpine
+    container_name: clickhouse-s1r2
+    hostname: clickhouse-s1r2
+    ports:
+      - "8124:8123"
+      - "9001:9000"
+    volumes:
+      - clickhouse-s1r2-data:/var/lib/clickhouse
+      - ./configs/clickhouse/s1r2-config.xml:/etc/clickhouse-server/config.xml
+      - ./configs/clickhouse/s1r2-users.xml:/etc/clickhouse-server/users.xml
+    depends_on:
+      - clickhouse-keeper-1
+      - clickhouse-keeper-2
+      - clickhouse-keeper-3
+    networks:
+      - clickhouse-network
+
+  clickhouse-s2r1:
+    image: clickhouse/clickhouse-server:23.8-alpine
+    container_name: clickhouse-s2r1
+    hostname: clickhouse-s2r1
+    ports:
+      - "8125:8123"
+      - "9002:9000"
+    volumes:
+      - clickhouse-s2r1-data:/var/lib/clickhouse
+      - ./configs/clickhouse/s2r1-config.xml:/etc/clickhouse-server/config.xml
+      - ./configs/clickhouse/s2r1-users.xml:/etc/clickhouse-server/users.xml
+    depends_on:
+      - clickhouse-keeper-1
+      - clickhouse-keeper-2
+      - clickhouse-keeper-3
+    networks:
+      - clickhouse-network
+
+  clickhouse-s2r2:
+    image: clickhouse/clickhouse-server:23.8-alpine
+    container_name: clickhouse-s2r2
+    hostname: clickhouse-s2r2
+    ports:
+      - "8126:8123"
+      - "9003:9000"
+    volumes:
+      - clickhouse-s2r2-data:/var/lib/clickhouse
+      - ./configs/clickhouse/s2r2-config.xml:/etc/clickhouse-server/config.xml
+      - ./configs/clickhouse/s2r2-users.xml:/etc/clickhouse-server/users.xml
+    depends_on:
+      - clickhouse-keeper-1
+      - clickhouse-keeper-2
+      - clickhouse-keeper-3
+    networks:
+      - clickhouse-network
+
+  clickhouse-s3r1:
+    image: clickhouse/clickhouse-server:23.8-alpine
+    container_name: clickhouse-s3r1
+    hostname: clickhouse-s3r1
+    ports:
+      - "8127:8123"
+      - "9004:9000"
+    volumes:
+      - clickhouse-s3r1-data:/var/lib/clickhouse
+      - ./configs/clickhouse/s3r1-config.xml:/etc/clickhouse-server/config.xml
+      - ./configs/clickhouse/s3r1-users.xml:/etc/clickhouse-server/users.xml
+    depends_on:
+      - clickhouse-keeper-1
+      - clickhouse-keeper-2
+      - clickhouse-keeper-3
+    networks:
+      - clickhouse-network
+
+  clickhouse-s3r2:
+    image: clickhouse/clickhouse-server:23.8-alpine
+    container_name: clickhouse-s3r2
+    hostname: clickhouse-s3r2
+    ports:
+      - "8128:8123"
+      - "9005:9000"
+    volumes:
+      - clickhouse-s3r2-data:/var/lib/clickhouse
+      - ./configs/clickhouse/s3r2-config.xml:/etc/clickhouse-server/config.xml
+      - ./configs/clickhouse/s3r2-users.xml:/etc/clickhouse-server/users.xml
+    depends_on:
+      - clickhouse-keeper-1
+      - clickhouse-keeper-2
+      - clickhouse-keeper-3
+    networks:
+      - clickhouse-network
+
+  # MongoDB Replica Set (3 nodes)
+  mongodb-1:
+    image: mongo:7.0
+    container_name: mongodb-1
+    hostname: mongodb-1
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb-1-data:/data/db
+      - ./configs/mongodb/init-replica.js:/docker-entrypoint-initdb.d/init-replica.js
+    command: --replSet rs0 --bind_ip_all
+    networks:
+      - mongodb-network
+
+  mongodb-2:
+    image: mongo:7.0
+    container_name: mongodb-2
+    hostname: mongodb-2
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb-2-data:/data/db
+    command: --replSet rs0 --bind_ip_all
+    depends_on:
+      - mongodb-1
+    networks:
+      - mongodb-network
+
+  mongodb-3:
+    image: mongo:7.0
+    container_name: mongodb-3
+    hostname: mongodb-3
+    ports:
+      - "27019:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb-3-data:/data/db
+    command: --replSet rs0 --bind_ip_all
+    depends_on:
+      - mongodb-1
+    networks:
+      - mongodb-network
+
+  # Python Services
+  event-producer:
+    build:
+      context: .
+      dockerfile: Dockerfile.producer
+    container_name: event-producer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka-1:29092,kafka-2:29092,kafka-3:29092
+      EVENTS_PER_SECOND: 1000
+      TOTAL_EVENTS: 1000000
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    networks:
+      - kafka-network
+    restart: "no"
+
+  event-consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    container_name: event-consumer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka-1:29092,kafka-2:29092,kafka-3:29092
+      CLICKHOUSE_HOST: clickhouse-s1r1
+      CLICKHOUSE_PORT: 8123
+      MONGODB_URL: mongodb://admin:password@mongodb-1:27017,mongodb-2:27017,mongodb-3:27017/events?replicaSet=rs0&authSource=admin
+      BATCH_SIZE: 5000
+      MAX_WORKERS: 4
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - clickhouse-s1r1
+      - mongodb-1
+    networks:
+      - kafka-network
+      - clickhouse-network
+      - mongodb-network
+    restart: unless-stopped
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - kafka-network
+      - clickhouse-network
+      - mongodb-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./configs/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./configs/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - kafka-network
+      - clickhouse-network
+      - mongodb-network
+
+volumes:
+  kafka-1-data:
+  kafka-2-data:
+  kafka-3-data:
+  keeper-1-data:
+  keeper-2-data:
+  keeper-3-data:
+  clickhouse-s1r1-data:
+  clickhouse-s1r2-data:
+  clickhouse-s2r1-data:
+  clickhouse-s2r2-data:
+  clickhouse-s3r1-data:
+  clickhouse-s3r2-data:
+  mongodb-1-data:
+  mongodb-2-data:
+  mongodb-3-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  kafka-network:
+    driver: bridge
+  clickhouse-network:
+    driver: bridge
+  mongodb-network:
+    driver: bridge
