@@ -19,11 +19,17 @@ import clickhouse_connect
 from pymongo.errors import BulkWriteError
 import yaml
 
-from transformer import EventTransformer, event_to_clickhouse_dict, event_to_mongodb_dict
+# Import our modules
+from .transformer import EventTransformer, event_to_clickhouse_dict, event_to_mongodb_dict
+from .database_writer import DualWriter, ClickHouseWriter, MongoDBWriter
+from ..utils.monitoring import MonitoringService
+from database_writer import DualWriter, ClickHouseWriter, MongoDBWriter
+from monitoring import MonitoringService, monitoring_context
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
 
 class ClickHouseWriter:
     """Async ClickHouse writer with connection pooling"""
