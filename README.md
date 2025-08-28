@@ -28,39 +28,75 @@
 
 ```
 event-processing-pipeline/
-├── docker-compose.yml
-├── Makefile
-├── README.md
-├── requirements.txt
-├── configs/
-│   ├── clickhouse/
-│   │   ├── init-db.sql
-│   │   └── config.xml
-│   ├── kafka/
-│   │   └── server.properties
-│   └── event-categories.yml
-├── src/
-│   ├── __init__.py
-│   ├── producer/
-│   │   ├── __init__.py
-│   │   ├── event_generator.py
-│   │   └── kafka_producer.py
-│   ├── consumer/
-│   │   ├── __init__.py
-│   │   ├── kafka_consumer.py
-│   │   ├── transformer.py
-│   │   └── database_writer.py
-│   └── utils/
-│       ├── __init__.py
-│       ├── config.py
-│       └── monitoring.py
-├── tests/
-│   ├── __init__.py
-│   ├── test_transformer.py
-│   └── test_database_writer.py
-└── scripts/
-    ├── setup.sh
-    └── benchmark.py
+├── 📄 docker-compose.yml                    
+├── 📄 Dockerfile.consumer                    
+├── 📄 Dockerfile.producer                   
+├── 📄 Makefile                              
+├── 📄 README.md                             
+├── 📄 requirements.txt                      
+│
+├── 📁 configs/
+│   ├── 📄 event-categories.yml              
+│   ├── 📁 clickhouse/
+│   │   ├── 📄 config.xml                    
+│   │   ├── 📄 init-db.sql                   
+│   │   ├── 📄 keeper-1.xml                  
+│   │   ├── 📄 keeper-2.xml                  
+│   │   ├── 📄 keeper-3.xml                  
+│   │   ├── 📄 s1r1-config.xml               
+│   │   ├── 📄 s1r1-users.xml                
+│   │   ├── 📄 s1r2-config.xml               
+│   │   ├── 📄 s1r2-users.xml                
+│   │   ├── 📄 s2r1-config.xml               
+│   │   ├── 📄 s2r1-users.xml                
+│   │   ├── 📄 s2r2-config.xml               
+│   │   ├── 📄 s2r2-users.xml                
+│   │   ├── 📄 s3r1-config.xml               
+│   │   ├── 📄 s3r1-users.xml                
+│   │   ├── 📄 s3r2-config.xml               
+│   │   └── 📄 s3r2-users.xml                
+│   ├── 📁 kafka/
+│   │   └── 📄 kafka.properties              
+│   ├── 📁 prometheus/                       
+│   │   └── 📄 prometheus.yml                
+│   ├── 📁 grafana/                          
+│   │   ├── 📁 dashboards/                   
+│   │   └── 📁 datasources/                  
+│   │       └── 📄 prometheus.yml            
+│   └── 📁 mongodb/                          
+│       └── 📄 init-replica.js               
+│
+├── 📁 src/
+│   ├── 📄 __init__.py                       
+│   ├── 📁 producer/
+│   │   ├── 📄 __init__.py                   
+│   │   ├── 📄 event_generator.py            
+│   │   └── 📄 kafka_producer.py             
+│   ├── 📁 consumer/
+│   │   ├── 📄 __init__.py                   
+│   │   ├── 📄 kafka_consumer.py             
+│   │   ├── 📄 transformer.py                
+│   │   └── 📄 database_writer.py            
+│   └── 📁 utils/
+│       ├── 📄 __init__.py                   
+│       ├── 📄 config.py                     
+│       └── 📄 monitoring.py                 
+│
+├── 📁 tests/
+│   ├── 📄 __init__.py                       
+│   ├── 📄 conftest.py                       
+│   └── 📄 test_transformer.py               
+│
+├── 📁 scripts/
+│   ├── 📄 benchmark.py                      
+│   └── 📄 setup.sh                          
+│
+├── 📁 logs/                                 
+├── 📁 backups/                              
+└── 📁 data/                                 
+    ├── 📁 clickhouse/                       
+    ├── 📁 mongodb/                          
+    └── 📁 kafka/                            
 ```
 
 ## Quick Start
