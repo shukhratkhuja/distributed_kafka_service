@@ -92,6 +92,26 @@ services:
       - kafka-3-data:/tmp/kraft-combined-logs
     networks:
       - kafka-network
+  
+  init-topics:
+    image: apache/kafka:3.7.1
+    container_name: init-topics
+    networks: [dnet]
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    environment:
+      BOOTSTRAP: kafka-1:9092
+      DEFAULT_PARTITIONS: 3
+      DEFAULT_RF: 3
+      # Format: name[:partitions[:rf]] ; bilan ajrating
+      TOPICS: "events_topic:3:3;orders:6:3;payments:6:3"
+    volumes:
+      - ./scripts/init-topics.sh:/init-topics.sh:ro
+    entrypoint: ["/bin/bash", "/init-topics.sh"]
+    restart: on-failure
+
 
   # ClickHouse Keepers (3 nodes)
   clickhouse-keeper-1:

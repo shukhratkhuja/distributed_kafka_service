@@ -1,0 +1,59 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Event processor health and metrics
+  - job_name: 'event-processor'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['event-consumer:8080']
+    metrics_path: '/metrics'
+    
+  # ClickHouse metrics (if available)
+  - job_name: 'clickhouse'
+    scrape_interval: 30s
+    static_configs:
+      - targets: 
+          - 'clickhouse-s1r1:8123'
+          - 'clickhouse-s1r2:8123'
+          - 'clickhouse-s2r1:8123'
+          - 'clickhouse-s2r2:8123'
+          - 'clickhouse-s3r1:8123'
+          - 'clickhouse-s3r2:8123'
+    metrics_path: '/metrics'
+
+  # Kafka JMX metrics (if enabled)
+  - job_name: 'kafka'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'kafka-1:9101'
+          - 'kafka-2:9102'
+          - 'kafka-3:9103'
+
+  # System metrics via node_exporter (if deployed)
+  - job_name: 'node-exporter'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+# Alerting rules
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Example alerting rules
+rule_files:
+  - "alert_rules.yml"
